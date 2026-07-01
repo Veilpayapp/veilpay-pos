@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { width: 800px; height: 480px; overflow: hidden; background: #0D0D14; }
+body { font-family: 'Inter', -apple-system, sans-serif; color: #F0F0F0; -webkit-font-smoothing: antialiased; }
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+button:focus-visible { outline: 2px solid #00C896; outline-offset: 2px; }
+
+:root {
+  --color-bg: #0D0D14;
+  --color-surface: #13131F;
+  --color-surface-raised: #1A1A2E;
+  --color-green: #00C896;
+  --color-violet: #7B61FF;
+  --color-red: #FF4444;
+  --color-gold: #FFD700;
+  --color-text: #F0F0F0;
+  --color-muted: #888899;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-full: 999px;
+  
+  /* Aliases for backwards compatibility with previously built screens */
+  --bg-color: var(--color-bg);
+  --surface-color: var(--color-surface);
+  --surface-border: #1E1E30;
+  --text-primary: var(--color-text);
+  --text-muted: var(--color-muted);
+  --accent-green: var(--color-green);
+  --accent-violet: var(--color-violet);
+  --error-color: var(--color-red);
+  --success-color: var(--color-green);
+}
+
+.min-tap {
+  min-width: 64px;
+  min-height: 64px;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes stroke {
+  100% { stroke-dashoffset: 0; }
+}

@@ -1,0 +1,17 @@
+[Unit]
+Description=VeilPay POS Frontend Server
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/veilpay-pos/frontend
+ExecStart=/usr/bin/npm run dev
+EnvironmentFile=/home/pi/veilpay-pos/.env
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
