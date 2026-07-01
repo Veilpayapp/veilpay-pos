@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { getInvoiceStatus } from '../services/veilpayApi';
+import { POLL_INTERVAL_MS, TIMER_INTERVAL_MS } from '../types';
 
 interface Callbacks {
   onPaid: () => void;
@@ -15,7 +16,6 @@ export const useInvoicePoller = (
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const callbacksRef = useRef(callbacks);
 
-  // Keep callbacks ref updated so we don't need to add them to dependencies
   useEffect(() => {
     callbacksRef.current = callbacks;
   }, [callbacks]);
@@ -56,13 +56,12 @@ export const useInvoicePoller = (
     }
 
     setSecondsRemaining(initialDiff);
-    timerInterval = setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, TIMER_INTERVAL_MS);
 
     const doPoll = async () => {
       if (!isPolling) return;
       try {
         const result = await getInvoiceStatus(invoiceId);
-        // Important: check isPolling again because it might have changed during the await!
         if (!isPolling) return;
 
         if (result.status === 'paid') {
@@ -72,12 +71,12 @@ export const useInvoicePoller = (
           cleanup();
           callbacksRef.current.onExpired();
         }
-      } catch (error) {
-        console.error('Poll network error:', error);
+      } catch (_error: unknown) {
+        // Silent retry — polling continues on next interval
       }
     };
 
-    pollInterval = setInterval(doPoll, 2500);
+    pollInterval = setInterval(doPoll, POLL_INTERVAL_MS);
 
     return cleanup;
   }, [invoiceId, expiresAt]);

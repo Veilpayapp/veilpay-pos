@@ -54,6 +54,25 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
   },
 ];
 
+const CACHE_KEY = 'veilpay_networks';
+const RETRY_DELAY_MS = 3000;
+
+const safeSessionGet = (key: string): string | null => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeSessionSet = (key: string, value: string): void => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // sessionStorage unavailable (e.g. kiosk privacy mode)
+  }
+};
+
 export const useSupportedNetworks = () => {
   const [networks, setNetworks] = useState<NetworkConfig[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -65,7 +84,7 @@ export const useSupportedNetworks = () => {
 
     const fetchNetworks = async (isRetry = false) => {
       try {
-        const cached = sessionStorage.getItem('veilpay_networks');
+        const cached = safeSessionGet(CACHE_KEY);
         if (cached && !isRetry) {
           setNetworks(JSON.parse(cached));
           setLoading(false);
@@ -78,19 +97,18 @@ export const useSupportedNetworks = () => {
         if (Array.isArray(data) && data.length > 0) {
           if (isMounted) {
             setNetworks(data);
-            sessionStorage.setItem('veilpay_networks', JSON.stringify(data));
+            safeSessionSet(CACHE_KEY, JSON.stringify(data));
             setLoading(false);
           }
         } else {
           throw new Error('Empty networks returned');
         }
-      } catch (err) {
+      } catch {
         if (!isRetry && isMounted) {
           retryTimeout = setTimeout(() => {
             fetchNetworks(true);
-          }, 3000);
+          }, RETRY_DELAY_MS);
         } else if (isMounted) {
-          console.warn('VeilPay: could not fetch networks, using fallback list');
           setNetworks(FALLBACK_NETWORKS);
           setError('Failed to fetch from backend, using fallbacks');
           setLoading(false);

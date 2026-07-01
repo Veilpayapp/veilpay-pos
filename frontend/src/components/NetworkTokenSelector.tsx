@@ -1,170 +1,85 @@
-import { useEffect, useRef } from 'react';
-import { NetworkConfig } from '../types';
+import React, { useEffect, useRef } from 'react';
+import { NetworkTokenSelectorProps } from '../types';
 
-interface Props {
-  networks: NetworkConfig[];
-  loading: boolean;
-  selectedChain: string;
-  selectedToken: string;
-  onChange: (chainKey: string, tokenSymbol: string) => void;
-}
+const TOKEN_COLORS: Record<string, string> = {
+  USDC: '#2775CA',
+  USDT: '#26A17B',
+};
 
-const NetworkTokenSelector: React.FC<Props> = ({
-  networks,
-  loading,
-  selectedChain,
-  selectedToken,
-  onChange,
+const NetworkTokenSelector: React.FC<NetworkTokenSelectorProps> = ({
+  networks, loading, selectedChain, selectedToken, onChange,
 }) => {
   const isInitialized = useRef(false);
 
-  // Initialize selection once networks are loaded
   useEffect(() => {
     if (loading || networks.length === 0 || isInitialized.current) return;
-    
-    let defaultChain = networks.find(n => n.chainKey === 'polygon');
-    if (!defaultChain) defaultChain = networks[0];
-
-    let defaultToken = defaultChain.tokens.find(t => t.symbol === 'USDC');
-    if (!defaultToken) defaultToken = defaultChain.tokens[0];
-
-    onChange(defaultChain.chainKey, defaultToken.symbol);
+    const chain = networks.find(n => n.chainKey === 'polygon') ?? networks[0];
+    const token = chain.tokens.find(t => t.symbol === 'USDC') ?? chain.tokens[0];
+    onChange(chain.chainKey, token.symbol);
     isInitialized.current = true;
   }, [networks, loading, onChange]);
 
-  // If chain changes, validate token
-  const handleChainChange = (newChainKey: string) => {
-    const chain = networks.find(n => n.chainKey === newChainKey);
+  const handleChain = (key: string) => {
+    const chain = networks.find(n => n.chainKey === key);
     if (!chain) return;
-    
-    let newTokenSymbol = selectedToken;
-    const hasToken = chain.tokens.some(t => t.symbol === selectedToken);
-    
-    if (!hasToken) {
-      newTokenSymbol = chain.tokens[0]?.symbol || '';
-    }
-    
-    onChange(newChainKey, newTokenSymbol);
+    const valid = chain.tokens.some(t => t.symbol === selectedToken);
+    onChange(key, valid ? selectedToken : chain.tokens[0]?.symbol ?? '');
   };
 
-  const handleTokenChange = (newTokenSymbol: string) => {
-    onChange(selectedChain, newTokenSymbol);
-  };
-
-  const currentChain = networks.find(n => n.chainKey === selectedChain);
-  const currentTokens = currentChain?.tokens || [];
-
-  const getPillStyle = (isSelected: boolean, color: string = '#888899') => ({
-    display: 'flex',
-    alignItems: 'center',
-    height: '40px',
-    padding: '0 14px',
-    borderRadius: '999px',
-    fontSize: '13px',
-    fontWeight: 600,
-    gap: '6px',
-    marginRight: '8px',
-    border: isSelected ? `1.5px solid ${color}` : '1px solid #2A2A3E',
-    backgroundColor: isSelected ? `${color}26` : '#1A1A2E', // 26 hex is ~15% opacity
-    color: isSelected ? '#FFFFFF' : '#888899',
-    whiteSpace: 'nowrap' as const,
-  });
-
-  const rowStyle = {
-    display: 'flex',
-    overflowX: 'auto' as const,
-    WebkitOverflowScrolling: 'touch' as any,
-    scrollbarWidth: 'none' as const,
-    msOverflowStyle: 'none' as const,
-    paddingBottom: '8px',
-  };
-
-  const labelStyle = {
-    fontSize: '11px',
-    textTransform: 'uppercase' as const,
-    color: 'var(--text-muted)',
-    marginBottom: '8px',
-    textAlign: 'left' as const,
-  };
-
-  const getTokenColor = (symbol: string) => {
-    if (symbol === 'USDC') return '#2775CA';
-    if (symbol === 'USDT') return '#26A17B';
-    return '#888899';
-  };
+  const current = networks.find(n => n.chainKey === selectedChain);
 
   if (loading) {
     return (
-      <div style={{ background: 'var(--surface-color)', padding: '16px', borderRadius: '12px' }}>
-        <div style={labelStyle}>Network</div>
-        <div style={rowStyle}>
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} style={{ height: '40px', width: '100px', borderRadius: '999px', background: '#2A2A3E', marginRight: '8px', animation: 'pulse 1.5s infinite' }} />
-          ))}
+      <div className="nts">
+        <div><div className="nts-label">Network</div>
+          <div className="nts-scroll">{[1,2,3,4].map(i => <div key={i} className="nts-skeleton" />)}</div>
         </div>
       </div>
     );
   }
 
+  if (networks.length === 0) {
+    return <div className="nts"><div className="nts-empty">No networks available</div></div>;
+  }
+
   return (
-    <div style={{ background: 'var(--surface-color)', padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="nts">
       <div>
-        <div style={labelStyle}>Network</div>
-        <div style={rowStyle} className="hide-scroll">
+        <div className="nts-label">Network</div>
+        <div className="nts-scroll">
           {networks.map(n => {
-            const isSelected = selectedChain === n.chainKey;
-            const chainColor = n.color || '#888899';
+            const sel = selectedChain === n.chainKey;
+            const c = n.color ?? '#888899';
             return (
-              <button 
-                key={n.chainKey} 
-                onClick={() => handleChainChange(n.chainKey)}
-                style={getPillStyle(isSelected, chainColor)}
-                className="min-tap"
-              >
-                {n.logoUrl ? (
-                  <img src={n.logoUrl} alt="" width="16" height="16" style={{ borderRadius: '50%' }} />
-                ) : (
-                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: chainColor }} />
-                )}
+              <button key={n.chainKey} className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
+                style={sel ? { '--pill-color': c, '--pill-bg': `${c}26` } as React.CSSProperties : undefined}
+                onClick={() => handleChain(n.chainKey)}>
+                {n.logoUrl ? <img className="nts-img" src={n.logoUrl} alt="" width={16} height={16} /> : <span className="nts-dot" style={{ '--pill-color': c } as React.CSSProperties} />}
                 {n.shortLabel}
               </button>
             );
           })}
         </div>
       </div>
-
       <div>
-        <div style={labelStyle}>Token</div>
-        <div style={rowStyle} className="hide-scroll">
-          {currentTokens.map(t => {
-            const isSelected = selectedToken === t.symbol;
-            const tokenColor = getTokenColor(t.symbol);
+        <div className="nts-label">Token</div>
+        <div className="nts-scroll">
+          {(current?.tokens ?? []).map(t => {
+            const sel = selectedToken === t.symbol;
+            const c = TOKEN_COLORS[t.symbol] ?? '#888899';
             return (
-              <button 
-                key={t.symbol} 
-                onClick={() => handleTokenChange(t.symbol)}
-                style={getPillStyle(isSelected, tokenColor)}
-                className="min-tap"
-              >
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: tokenColor }} />
+              <button key={t.symbol} className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
+                style={sel ? { '--pill-color': c, '--pill-bg': `${c}26` } as React.CSSProperties : undefined}
+                onClick={() => onChange(selectedChain, t.symbol)}>
+                <span className="nts-dot" style={{ '--pill-color': c } as React.CSSProperties} />
                 {t.symbol}
               </button>
             );
           })}
         </div>
       </div>
-      <style>{`
-        .hide-scroll::-webkit-scrollbar {
-          display: none;
-        }
-        @keyframes pulse {
-          0% { opacity: 0.6; }
-          50% { opacity: 0.3; }
-          100% { opacity: 0.6; }
-        }
-      `}</style>
     </div>
   );
 };
 
-export default NetworkTokenSelector;
+export default React.memo(NetworkTokenSelector);

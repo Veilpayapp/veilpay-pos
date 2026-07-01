@@ -27,11 +27,9 @@ const ScreenManager = () => {
 
 const App = () => {
   return (
-    <div style={{ width: '800px', height: '480px', overflow: 'hidden', background: 'var(--color-bg)' }}>
-      <POSProvider>
-        <ScreenManager />
-      </POSProvider>
-    </div>
+    <POSProvider>
+      <ScreenManager />
+    </POSProvider>
   );
 };
 

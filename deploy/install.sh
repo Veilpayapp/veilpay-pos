@@ -4,6 +4,8 @@ sudo apt-get update
 sudo apt-get install -y chromium-browser unclutter nodejs npm
 cd /home/pi/veilpay-pos/frontend
 npm install
+npm run build
+npm install -g serve
 cp /home/pi/veilpay-pos/.env.example /home/pi/veilpay-pos/.env
 echo ">>> EDIT .env with your API keys before continuing <<<"
 sudo cp /home/pi/veilpay-pos/deploy/veilpay-pos.service /etc/systemd/system/

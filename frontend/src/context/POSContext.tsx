@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 export type POSState = {
-  screen: "idle" | "amount" | "qr" | "success" | "error";
+  screen: 'idle' | 'amount' | 'qr' | 'success' | 'error';
   amountUSD: number;
   invoiceId: string | null;
   paymentAddress: string | null;
   expiresAt: string | null;
-  txStatus: "pending" | "paid" | "expired" | "cancelled" | null;
+  txStatus: 'pending' | 'paid' | 'expired' | 'cancelled' | null;
   errorMessage: string | null;
   memo: string;
   selectedChain: string;
@@ -14,9 +14,9 @@ export type POSState = {
 };
 
 type Action =
-  | { type: 'SET_AMOUNT'; amountUSD: number }
+  | { type: 'SET_AMOUNT'; amountUSD: number; memo: string }
   | { type: 'INVOICE_CREATED'; payload: { invoiceId: string; paymentAddress: string; expiresAt: string } }
-  | { type: 'STATUS_UPDATE'; status: "pending" | "paid" | "expired" | "cancelled" }
+  | { type: 'STATUS_UPDATE'; status: 'pending' | 'paid' | 'expired' | 'cancelled' }
   | { type: 'GO_TO_SCREEN'; screen: POSState['screen'] }
   | { type: 'SET_ERROR'; message: string }
   | { type: 'SET_SELECTION'; chainKey: string; tokenSymbol: string }
@@ -38,14 +38,14 @@ const initialState: POSState = {
 const posReducer = (state: POSState, action: Action): POSState => {
   switch (action.type) {
     case 'SET_AMOUNT':
-      return { ...state, amountUSD: action.amountUSD };
+      return { ...state, amountUSD: action.amountUSD, memo: action.memo };
     case 'INVOICE_CREATED':
       return {
         ...state,
         invoiceId: action.payload.invoiceId,
         paymentAddress: action.payload.paymentAddress,
         expiresAt: action.payload.expiresAt,
-        screen: 'qr', // usually we go to qr right after
+        screen: 'qr',
       };
     case 'STATUS_UPDATE':
       return { ...state, txStatus: action.status };
