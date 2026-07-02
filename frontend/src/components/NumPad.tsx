@@ -18,9 +18,17 @@ const NumPad: React.FC<NumPadProps> = ({ value, onChange }) => {
   };
 
   return (
-    <div className="numpad">
+    <div className="numpad" role="group" aria-label="Amount keypad">
       {KEYS.map(k => (
-        <button type="button" key={k} className="numpad-key" onClick={() => handlePress(k)}>{k}</button>
+        <button
+          type="button"
+          key={k}
+          className="numpad-key"
+          aria-label={k === '⌫' ? 'Backspace' : k}
+          onClick={() => handlePress(k)}
+        >
+          {k}
+        </button>
       ))}
     </div>
   );

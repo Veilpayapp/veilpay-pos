@@ -7,7 +7,6 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
     chainKey: 'ethereum',
     label: 'Ethereum Mainnet',
     shortLabel: 'ETH',
-    color: '#627EEA',
     tokens: [
       { symbol: 'USDC', label: 'USD Coin', decimals: 6 },
       { symbol: 'USDT', label: 'Tether', decimals: 6 },
@@ -17,7 +16,6 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
     chainKey: 'polygon',
     label: 'Polygon',
     shortLabel: 'MATIC',
-    color: '#8247E5',
     tokens: [
       { symbol: 'USDC', label: 'USD Coin', decimals: 6 },
       { symbol: 'USDT', label: 'Tether', decimals: 6 },
@@ -27,7 +25,6 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
     chainKey: 'bsc',
     label: 'BNB Smart Chain',
     shortLabel: 'BSC',
-    color: '#F3BA2F',
     tokens: [
       { symbol: 'USDC', label: 'USD Coin', decimals: 18 },
       { symbol: 'USDT', label: 'Tether', decimals: 18 },
@@ -37,7 +34,6 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
     chainKey: 'tron',
     label: 'Tron Network',
     shortLabel: 'TRX',
-    color: '#FF060A',
     tokens: [
       { symbol: 'USDT', label: 'Tether', decimals: 6 },
     ],
@@ -46,7 +42,6 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
     chainKey: 'solana',
     label: 'Solana',
     shortLabel: 'SOL',
-    color: '#14F195',
     tokens: [
       { symbol: 'USDC', label: 'USD Coin', decimals: 6 },
       { symbol: 'USDT', label: 'Tether', decimals: 6 },
@@ -90,6 +85,7 @@ export const useSupportedNetworks = () => {
   useEffect(() => {
     let isMounted = true;
     let retryTimeout: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
 
     const fetchNetworks = async (isRetry = false) => {
       try {
@@ -103,8 +99,8 @@ export const useSupportedNetworks = () => {
           }
         }
 
-        const response = await veilpayApi.get('/api/v1/networks/supported');
-        const data = response.data?.networks;
+        const response = await veilpayApi.get('/api/v1/networks/supported', { signal: controller.signal });
+        const data = (response.data as { networks?: NetworkConfig[] } | undefined)?.networks;
         
         if (Array.isArray(data) && data.length > 0) {
           if (isMounted) {
@@ -116,6 +112,7 @@ export const useSupportedNetworks = () => {
           throw new Error('Empty networks returned');
         }
       } catch {
+        if (controller.signal.aborted) return;
         if (!isRetry && isMounted) {
           retryTimeout = setTimeout(() => {
             fetchNetworks(true);
@@ -132,6 +129,7 @@ export const useSupportedNetworks = () => {
 
     return () => {
       isMounted = false;
+      controller.abort();
       clearTimeout(retryTimeout);
     };
   }, []);

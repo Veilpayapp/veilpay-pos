@@ -20,12 +20,6 @@ export interface NumPadProps {
   onChange: (newValue: string) => void;
 }
 
-export interface HeaderProps {
-  title: string;
-  showBack?: boolean;
-  onBack?: () => void;
-}
-
 export interface NetworkTokenSelectorProps {
   networks: NetworkConfig[];
   loading: boolean;
@@ -83,3 +77,4 @@ export const DEFAULT_MEMO = 'POS Register 1';
 export const QR_EXPIRY_URGENT_SECONDS = 60;
 export const SKELETON_PILL_COUNT = 4;
 export const QR_SIZE = 260;
+export const PROCESSING_DURATION_MS = 1500;

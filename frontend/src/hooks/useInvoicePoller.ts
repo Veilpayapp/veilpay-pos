@@ -24,9 +24,11 @@ export const useInvoicePoller = (
     let isPolling = true;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
     let timerInterval: ReturnType<typeof setInterval> | null = null;
+    const controller = new AbortController();
 
     const cleanup = () => {
       isPolling = false;
+      controller.abort();
       if (pollInterval) clearInterval(pollInterval);
       if (timerInterval) clearInterval(timerInterval);
     };
@@ -56,7 +58,7 @@ export const useInvoicePoller = (
     const doPoll = async () => {
       if (!isPolling) return;
       try {
-        const result = await getInvoiceStatus(invoiceId);
+        const result = await getInvoiceStatus(invoiceId, controller.signal);
         if (!isPolling) return;
 
         if (result.status === 'paid') {

@@ -1,37 +1,37 @@
-import { useEffect, useState } from 'react';
 import { usePOS } from '../context/POSContext';
-
-const formatTime = (): string =>
-  new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
 const IdleScreen = () => {
   const { dispatch } = usePOS();
-  const [time, setTime] = useState(formatTime);
-
-  useEffect(() => {
-    const id = setInterval(() => setTime(formatTime()), 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const handleStart = () => {
     dispatch({ type: 'GO_TO_SCREEN', screen: 'amount' });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleStart();
+    }
+  };
+
   return (
-    <div className="idle">
-      <div className="idle-clock">{time}</div>
-      <div className="idle-logo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 22S4 17.18 4 9V5l8-3 8 3v4c0 8.18-8 13-8 13z" fill="var(--color-green)" />
-        </svg>
-        <span className="idle-logo-text">VeilPay</span>
-      </div>
+    <div
+      className="idle min-tap"
+      role="button"
+      tabIndex={0}
+      aria-label="Tap to start payment"
+      onClick={handleStart}
+      onKeyDown={handleKeyDown}
+      style={{ cursor: 'pointer' }}
+    >
       <div className="idle-center">
-        <h2 className="idle-title">Ready for Payment</h2>
-        <p className="idle-subtitle">Enter the bill amount to begin</p>
-      </div>
-      <div className="idle-bottom">
-        <button type="button" className="idle-start min-tap" onClick={handleStart}>New Transaction</button>
+        <div className="idle-logo">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 22S4 17.18 4 9V5l8-3 8 3v4c0 8.18-8 13-8 13z" fill="var(--color-accent)" />
+          </svg>
+          <span className="idle-logo-text">VeilPay</span>
+        </div>
+        <p className="idle-subtitle">Ready to Pay</p>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { POSProviderProps } from '../types';
 
 export type POSState = {
-  screen: 'idle' | 'amount' | 'qr' | 'success' | 'error';
+  screen: 'idle' | 'amount' | 'payment' | 'qr' | 'processing' | 'success' | 'error' | 'dashboard';
   amountUSD: number;
   invoiceId: string | null;
   paymentAddress: string | null;

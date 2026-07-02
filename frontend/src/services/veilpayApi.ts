@@ -52,9 +52,15 @@ export const createInvoice = async (
   }
 };
 
-export const getInvoiceStatus = async (invoiceId: string): Promise<InvoiceStatusResponse> => {
+export const getInvoiceStatus = async (
+  invoiceId: string,
+  signal?: AbortSignal
+): Promise<InvoiceStatusResponse> => {
   try {
-    const response = await api.get<InvoiceStatusResponse>(`/api/v1/invoice/${invoiceId}/status`);
+    const response = await api.get<InvoiceStatusResponse>(
+      `/api/v1/invoice/${invoiceId}/status`,
+      { signal }
+    );
     return response.data;
   } catch (_error: unknown) {
     return { invoiceId, status: 'pending', expiresAt: '' };

@@ -1,16 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import { usePOS } from '../context/POSContext';
 import { useSupportedNetworks } from '../hooks/useSupportedNetworks';
-import { useCreateInvoice } from '../hooks/useCreateInvoice';
-import { MAX_AMOUNT_USD } from '../types';
-import Header from '../components/Header';
+import { MAX_AMOUNT_USD, DEFAULT_MEMO } from '../types';
 import NetworkTokenSelector from '../components/NetworkTokenSelector';
 import NumPad from '../components/NumPad';
 
 const AmountScreen = () => {
   const { state, dispatch } = usePOS();
   const { networks, loading, error } = useSupportedNetworks();
-  const { isSubmitting, submit } = useCreateInvoice();
   const [amountStr, setAmountStr] = useState('');
 
   useEffect(() => {
@@ -22,46 +19,53 @@ const AmountScreen = () => {
 
   const amt = parseFloat(amountStr) || 0;
   const isValid = amt > 0 && amt <= MAX_AMOUNT_USD && !!state.selectedChain && !!state.selectedToken;
-
-  const handleBack = useCallback(() => {
-    dispatch({ type: 'GO_TO_SCREEN', screen: 'idle' });
-  }, [dispatch]);
+  const amountFontSize = amountStr.replace('.', '').length > 6 ? '56px' : '72px';
 
   const handleSelectionChange = useCallback((chain: string, token: string) => {
     dispatch({ type: 'SET_SELECTION', chainKey: chain, tokenSymbol: token });
   }, [dispatch]);
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     if (!isValid) return;
-    await submit(amt);
-  }, [isValid, amt, submit]);
+    dispatch({ type: 'SET_AMOUNT', amountUSD: amt, memo: DEFAULT_MEMO });
+    dispatch({ type: 'GO_TO_SCREEN', screen: 'payment' });
+  }, [isValid, amt, dispatch]);
+
+  const handleDashboard = useCallback(() => {
+    dispatch({ type: 'GO_TO_SCREEN', screen: 'dashboard' });
+  }, [dispatch]);
 
   return (
     <div className="amount">
-      <Header title="Enter Bill Amount" showBack onBack={handleBack} />
+      <button type="button" className="amount-dashboard min-tap" aria-label="Open merchant dashboard" onClick={handleDashboard}>&#9776;</button>
       <div className="amount-body">
-        <div className="amount-left">
-          <div className="amount-display">
-            <div className={`amount-value ${amt > 0 ? 'amount-value--active' : ''}`}>
-              $ {amountStr || '0.00'}
-            </div>
+        <div className="amount-display-area">
+          <div className={`amount-value ${amt > 0 ? 'amount-value--active' : ''}`} style={{ fontSize: amountFontSize }}>
+            <span className="amount-currency">$</span>
+            {amountStr || '0.00'}
           </div>
-          {error && <div className="amount-error">{error}</div>}
-          <NetworkTokenSelector
-            networks={networks}
-            loading={loading}
-            selectedChain={state.selectedChain}
-            selectedToken={state.selectedToken}
-            onChange={handleSelectionChange}
-          />
+          {error && <div className="amount-error" role="alert">{error}</div>}
+
+          <div style={{ display: 'none' }}>
+            {/* Hiding NetworkTokenSelector visually to match strict Screen 2 spec, since selection is auto-handled by useEffect anyway */}
+            <NetworkTokenSelector
+              networks={networks}
+              loading={loading}
+              selectedChain={state.selectedChain}
+              selectedToken={state.selectedToken}
+              onChange={handleSelectionChange}
+            />
+          </div>
         </div>
-        <div className="amount-right">
+
+        <div className="amount-numpad-area">
           <NumPad value={amountStr} onChange={setAmountStr} />
-          <button type="button" className="amount-confirm min-tap" disabled={!isValid || isSubmitting} onClick={handleConfirm}>
-            {isSubmitting ? <div className="amount-spinner" /> : 'Generate QR Code →'}
-          </button>
         </div>
       </div>
+
+      <button type="button" className="amount-confirm min-tap" disabled={!isValid} onClick={handleConfirm}>
+        {`Charge $${amountStr || '0.00'}`}
+      </button>
     </div>
   );
 };
