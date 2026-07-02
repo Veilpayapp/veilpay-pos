@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { HeaderProps } from '../types';
 
+const formatTime = (): string =>
+  new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+
 const Header = ({ title, showBack, onBack }: HeaderProps) => {
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState(formatTime);
 
   useEffect(() => {
-    const tick = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-    tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(() => setTime(formatTime()), 1000);
     return () => clearInterval(id);
   }, []);
 
   return (
     <div className="header">
       <div className="header-left">
-        {showBack && <button className="header-back min-tap" onClick={onBack}>←</button>}
+        {showBack && <button type="button" className="header-back" onClick={onBack}>←</button>}
       </div>
       <div className="header-title">{title}</div>
       <div className="header-clock">{time}</div>

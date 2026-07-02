@@ -1,17 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { getInvoiceStatus } from '../services/veilpayApi';
-import { POLL_INTERVAL_MS, TIMER_INTERVAL_MS } from '../types';
-
-interface Callbacks {
-  onPaid: () => void;
-  onExpired: () => void;
-}
+import { POLL_INTERVAL_MS, TIMER_INTERVAL_MS, InvoicePollerCallbacks } from '../types';
 
 export const useInvoicePoller = (
   invoiceId: string | null,
   expiresAt: string | null,
-  callbacks: Callbacks
+  callbacks: InvoicePollerCallbacks
 ) => {
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const callbacksRef = useRef(callbacks);

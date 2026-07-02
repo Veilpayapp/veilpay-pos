@@ -20,7 +20,7 @@ const NumPad: React.FC<NumPadProps> = ({ value, onChange }) => {
   return (
     <div className="numpad">
       {KEYS.map(k => (
-        <button key={k} className="numpad-key" onClick={() => handlePress(k)}>{k}</button>
+        <button type="button" key={k} className="numpad-key" onClick={() => handlePress(k)}>{k}</button>
       ))}
     </div>
   );

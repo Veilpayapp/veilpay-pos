@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { usePOS } from '../context/POSContext';
 import { useSupportedNetworks } from '../hooks/useSupportedNetworks';
-import { createInvoice } from '../services/veilpayApi';
-import { InvoiceResponse, MAX_AMOUNT_USD, DEFAULT_MEMO } from '../types';
+import { useCreateInvoice } from '../hooks/useCreateInvoice';
+import { MAX_AMOUNT_USD } from '../types';
 import Header from '../components/Header';
 import NetworkTokenSelector from '../components/NetworkTokenSelector';
 import NumPad from '../components/NumPad';
@@ -10,39 +10,31 @@ import NumPad from '../components/NumPad';
 const AmountScreen = () => {
   const { state, dispatch } = usePOS();
   const { networks, loading, error } = useSupportedNetworks();
-  const [amountStr, setAmountStr] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isSubmitting, submit } = useCreateInvoice();
+  const [amountStr, setAmountStr] = useState('');
+
+  useEffect(() => {
+    if (loading || networks.length === 0 || state.selectedChain) return;
+    const chain = networks.find(n => n.chainKey === 'polygon') ?? networks[0];
+    const token = chain.tokens.find(t => t.symbol === 'USDC') ?? chain.tokens[0];
+    dispatch({ type: 'SET_SELECTION', chainKey: chain.chainKey, tokenSymbol: token.symbol });
+  }, [networks, loading, state.selectedChain, dispatch]);
 
   const amt = parseFloat(amountStr) || 0;
   const isValid = amt > 0 && amt <= MAX_AMOUNT_USD && !!state.selectedChain && !!state.selectedToken;
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     dispatch({ type: 'GO_TO_SCREEN', screen: 'idle' });
-  };
+  }, [dispatch]);
 
-  const handleSelectionChange = (chain: string, token: string) => {
+  const handleSelectionChange = useCallback((chain: string, token: string) => {
     dispatch({ type: 'SET_SELECTION', chainKey: chain, tokenSymbol: token });
-  };
+  }, [dispatch]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!isValid) return;
-    setIsSubmitting(true);
-    try {
-      dispatch({ type: 'SET_AMOUNT', amountUSD: amt, memo: DEFAULT_MEMO });
-      const invoice: InvoiceResponse = await createInvoice(amt, state.selectedChain, state.selectedToken, DEFAULT_MEMO);
-      dispatch({
-        type: 'INVOICE_CREATED',
-        payload: { invoiceId: invoice.invoiceId, paymentAddress: invoice.paymentAddress, expiresAt: invoice.expiresAt },
-      });
-      dispatch({ type: 'STATUS_UPDATE', status: invoice.status });
-      dispatch({ type: 'GO_TO_SCREEN', screen: 'qr' });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to create invoice';
-      dispatch({ type: 'SET_ERROR', message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    await submit(amt);
+  }, [isValid, amt, submit]);
 
   return (
     <div className="amount">
@@ -65,7 +57,7 @@ const AmountScreen = () => {
         </div>
         <div className="amount-right">
           <NumPad value={amountStr} onChange={setAmountStr} />
-          <button className="amount-confirm min-tap" disabled={!isValid || isSubmitting} onClick={handleConfirm}>
+          <button type="button" className="amount-confirm min-tap" disabled={!isValid || isSubmitting} onClick={handleConfirm}>
             {isSubmitting ? <div className="amount-spinner" /> : 'Generate QR Code →'}
           </button>
         </div>

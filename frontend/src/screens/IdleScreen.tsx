@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { usePOS } from '../context/POSContext';
 
+const formatTime = (): string =>
+  new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+
 const IdleScreen = () => {
   const { dispatch } = usePOS();
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState(formatTime);
 
   useEffect(() => {
-    const tick = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-    tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(() => setTime(formatTime()), 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -30,7 +31,7 @@ const IdleScreen = () => {
         <p className="idle-subtitle">Enter the bill amount to begin</p>
       </div>
       <div className="idle-bottom">
-        <button className="idle-start min-tap" onClick={handleStart}>New Transaction</button>
+        <button type="button" className="idle-start min-tap" onClick={handleStart}>New Transaction</button>
       </div>
     </div>
   );

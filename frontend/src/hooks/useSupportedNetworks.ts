@@ -57,6 +57,15 @@ const FALLBACK_NETWORKS: NetworkConfig[] = [
 const CACHE_KEY = 'veilpay_networks';
 const RETRY_DELAY_MS = 3000;
 
+const isNetworkConfigArray = (value: unknown): value is NetworkConfig[] => {
+  return Array.isArray(value) && value.every(
+    (n): n is NetworkConfig =>
+      typeof n === 'object' && n !== null &&
+      typeof (n as NetworkConfig).chainKey === 'string' &&
+      Array.isArray((n as NetworkConfig).tokens)
+  );
+};
+
 const safeSessionGet = (key: string): string | null => {
   try {
     return sessionStorage.getItem(key);
@@ -86,9 +95,12 @@ export const useSupportedNetworks = () => {
       try {
         const cached = safeSessionGet(CACHE_KEY);
         if (cached && !isRetry) {
-          setNetworks(JSON.parse(cached));
-          setLoading(false);
-          return;
+          const parsed: unknown = JSON.parse(cached);
+          if (isNetworkConfigArray(parsed) && parsed.length > 0) {
+            setNetworks(parsed);
+            setLoading(false);
+            return;
+          }
         }
 
         const response = await veilpayApi.get('/api/v1/networks/supported');

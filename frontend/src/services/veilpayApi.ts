@@ -41,8 +41,14 @@ export const createInvoice = async (
     });
     return response.data;
   } catch (error: unknown) {
-    const axiosErr = error as { response?: { data?: { message?: string } } };
-    throw new Error(axiosErr.response?.data?.message || 'Failed to create invoice');
+    if (axios.isAxiosError(error)) {
+      // No response means the request never reached the backend (offline / DNS / CORS).
+      if (error.request && !error.response) {
+        throw new Error('Network error');
+      }
+      throw new Error(error.response?.data?.message || 'Failed to create invoice');
+    }
+    throw new Error('Failed to create invoice');
   }
 };
 

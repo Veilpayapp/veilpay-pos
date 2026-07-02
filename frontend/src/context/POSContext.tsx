@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import { POSProviderProps } from '../types';
 
 export type POSState = {
   screen: 'idle' | 'amount' | 'qr' | 'success' | 'error';
@@ -69,11 +70,12 @@ interface POSContextType {
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
 
-export const POSProvider = ({ children }: { children: ReactNode }) => {
+export const POSProvider = ({ children }: POSProviderProps) => {
   const [state, dispatch] = useReducer(posReducer, initialState);
+  const value = useMemo(() => ({ state, dispatch }), [state, dispatch]);
 
   return (
-    <POSContext.Provider value={{ state, dispatch }}>
+    <POSContext.Provider value={value}>
       {children}
     </POSContext.Provider>
   );

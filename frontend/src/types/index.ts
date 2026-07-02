@@ -1,4 +1,10 @@
+import type { ReactNode } from 'react';
+
 // ─── Shared Prop Interfaces ─────────────────────────────────────────────────
+
+export interface POSProviderProps {
+  children: ReactNode;
+}
 
 export interface QRDisplayProps {
   value: string;
@@ -26,6 +32,11 @@ export interface NetworkTokenSelectorProps {
   selectedChain: string;
   selectedToken: string;
   onChange: (chainKey: string, tokenSymbol: string) => void;
+}
+
+export interface InvoicePollerCallbacks {
+  onPaid: () => void;
+  onExpired: () => void;
 }
 
 // ─── Data Types ─────────────────────────────────────────────────────────────
@@ -69,3 +80,6 @@ export const MAX_AMOUNT_USD = 99999;
 export const API_TIMEOUT_MS = 10000;
 export const DEFAULT_EXPIRY_MINUTES = 3;
 export const DEFAULT_MEMO = 'POS Register 1';
+export const QR_EXPIRY_URGENT_SECONDS = 60;
+export const SKELETON_PILL_COUNT = 4;
+export const QR_SIZE = 260;

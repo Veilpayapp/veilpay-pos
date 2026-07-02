@@ -1,24 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { NetworkTokenSelectorProps } from '../types';
-
-const TOKEN_COLORS: Record<string, string> = {
-  USDC: '#2775CA',
-  USDT: '#26A17B',
-};
+import React from 'react';
+import { NetworkTokenSelectorProps, SKELETON_PILL_COUNT } from '../types';
 
 const NetworkTokenSelector: React.FC<NetworkTokenSelectorProps> = ({
   networks, loading, selectedChain, selectedToken, onChange,
 }) => {
-  const isInitialized = useRef(false);
-
-  useEffect(() => {
-    if (loading || networks.length === 0 || isInitialized.current) return;
-    const chain = networks.find(n => n.chainKey === 'polygon') ?? networks[0];
-    const token = chain.tokens.find(t => t.symbol === 'USDC') ?? chain.tokens[0];
-    onChange(chain.chainKey, token.symbol);
-    isInitialized.current = true;
-  }, [networks, loading, onChange]);
-
   const handleChain = (key: string) => {
     const chain = networks.find(n => n.chainKey === key);
     if (!chain) return;
@@ -32,7 +17,7 @@ const NetworkTokenSelector: React.FC<NetworkTokenSelectorProps> = ({
     return (
       <div className="nts">
         <div><div className="nts-label">Network</div>
-          <div className="nts-scroll">{[1,2,3,4].map(i => <div key={i} className="nts-skeleton" />)}</div>
+          <div className="nts-scroll">{Array.from({ length: SKELETON_PILL_COUNT }, (_, i) => <div key={i} className="nts-skeleton" />)}</div>
         </div>
       </div>
     );
@@ -49,12 +34,12 @@ const NetworkTokenSelector: React.FC<NetworkTokenSelectorProps> = ({
         <div className="nts-scroll">
           {networks.map(n => {
             const sel = selectedChain === n.chainKey;
-            const c = n.color ?? '#888899';
             return (
-              <button key={n.chainKey} className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
-                style={sel ? { '--pill-color': c, '--pill-bg': `${c}26` } as React.CSSProperties : undefined}
+              <button type="button" key={n.chainKey}
+                className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
+                data-chain={n.chainKey}
                 onClick={() => handleChain(n.chainKey)}>
-                {n.logoUrl ? <img className="nts-img" src={n.logoUrl} alt="" width={16} height={16} /> : <span className="nts-dot" style={{ '--pill-color': c } as React.CSSProperties} />}
+                {n.logoUrl ? <img className="nts-img" src={n.logoUrl} alt="" width={16} height={16} /> : <span className="nts-dot" />}
                 {n.shortLabel}
               </button>
             );
@@ -66,12 +51,12 @@ const NetworkTokenSelector: React.FC<NetworkTokenSelectorProps> = ({
         <div className="nts-scroll">
           {(current?.tokens ?? []).map(t => {
             const sel = selectedToken === t.symbol;
-            const c = TOKEN_COLORS[t.symbol] ?? '#888899';
             return (
-              <button key={t.symbol} className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
-                style={sel ? { '--pill-color': c, '--pill-bg': `${c}26` } as React.CSSProperties : undefined}
+              <button type="button" key={t.symbol}
+                className={`nts-pill ${sel ? 'nts-pill--selected' : ''} min-tap`}
+                data-token={t.symbol}
                 onClick={() => onChange(selectedChain, t.symbol)}>
-                <span className="nts-dot" style={{ '--pill-color': c } as React.CSSProperties} />
+                <span className="nts-dot" />
                 {t.symbol}
               </button>
             );

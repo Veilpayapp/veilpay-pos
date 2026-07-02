@@ -29,8 +29,8 @@ const ErrorScreen = () => {
       <h2 className="error-title">Transaction Failed</h2>
       <p className="error-message">{displayMessage}</p>
       <div className="error-actions">
-        <button className="error-retry min-tap" onClick={handleRetry}>Try Again</button>
-        <button className="error-cancel min-tap" onClick={handleCancel}>Cancel</button>
+        <button type="button" className="error-retry min-tap" onClick={handleRetry}>Try Again</button>
+        <button type="button" className="error-cancel min-tap" onClick={handleCancel}>Cancel</button>
       </div>
     </div>
   );
