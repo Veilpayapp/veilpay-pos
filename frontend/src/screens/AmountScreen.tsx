@@ -1,13 +1,20 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { usePOS } from '../context/POSContext';
+import { useTranslation } from '../context/LanguageContext';
 import { useSupportedNetworks } from '../hooks/useSupportedNetworks';
+import { useExchangeRate } from '../hooks/useExchangeRate';
+import { useSettings } from '../hooks/useSettings';
+import { getCurrencyInfo } from '../data/currencies';
 import { MAX_AMOUNT_USD, DEFAULT_MEMO } from '../types';
-import NetworkTokenSelector from '../components/NetworkTokenSelector';
 import NumPad from '../components/NumPad';
+import WifiIndicator from '../components/WifiIndicator';
 
 const AmountScreen = () => {
   const { state, dispatch } = usePOS();
+  const { t } = useTranslation();
   const { networks, loading, error } = useSupportedNetworks();
+  const { rate, loading: rateLoading } = useExchangeRate(state.selectedCurrency);
+  const { settings } = useSettings();
   const [amountStr, setAmountStr] = useState('');
 
   useEffect(() => {
@@ -21,9 +28,11 @@ const AmountScreen = () => {
   const isValid = amt > 0 && amt <= MAX_AMOUNT_USD && !!state.selectedChain && !!state.selectedToken;
   const amountFontSize = amountStr.replace('.', '').length > 6 ? '56px' : '72px';
 
-  const handleSelectionChange = useCallback((chain: string, token: string) => {
-    dispatch({ type: 'SET_SELECTION', chainKey: chain, tokenSymbol: token });
-  }, [dispatch]);
+  const currencyInfo = useMemo(() => getCurrencyInfo(state.selectedCurrency), [state.selectedCurrency]);
+  const localAmount = useMemo(() => {
+    if (rate && amt > 0) return (amt * rate).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return null;
+  }, [rate, amt]);
 
   const handleConfirm = useCallback(() => {
     if (!isValid) return;
@@ -37,7 +46,11 @@ const AmountScreen = () => {
 
   return (
     <div className="amount">
-      <button type="button" className="amount-dashboard min-tap" aria-label="Open merchant dashboard" onClick={handleDashboard}>&#9776;</button>
+      <div className="amount-topbar">
+        <WifiIndicator />
+        {settings.shopName && <span className="amount-shop-name">{settings.shopName}</span>}
+        <button type="button" className="amount-dashboard min-tap" aria-label="Open merchant dashboard" onClick={handleDashboard}>&#9776;</button>
+      </div>
       <div className="amount-body">
         <div className="amount-display-area">
           <div className={`amount-value ${amt > 0 ? 'amount-value--active' : ''}`} style={{ fontSize: amountFontSize }}>
@@ -46,16 +59,28 @@ const AmountScreen = () => {
           </div>
           {error && <div className="amount-error" role="alert">{error}</div>}
 
-          <div style={{ display: 'none' }}>
-            {/* Hiding NetworkTokenSelector visually to match strict Screen 2 spec, since selection is auto-handled by useEffect anyway */}
-            <NetworkTokenSelector
-              networks={networks}
-              loading={loading}
-              selectedChain={state.selectedChain}
-              selectedToken={state.selectedToken}
-              onChange={handleSelectionChange}
-            />
+          <div className="amount-rate" aria-live="polite">
+            <span className="amount-rate-label">
+              {t('usdt_rate')}
+              <span className="amount-rate-flag">{currencyInfo.flag}</span>
+            </span>
+            {rateLoading ? (
+              <span className="amount-rate-value amount-rate-value--loading">{t('rate_loading')}</span>
+            ) : rate ? (
+              <span className="amount-rate-value">
+                {currencyInfo.symbol}{rate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                <span className="amount-rate-code">{currencyInfo.code}</span>
+              </span>
+            ) : (
+              <span className="amount-rate-value amount-rate-value--error">{t('rate_unavailable')}</span>
+            )}
           </div>
+
+          {localAmount && (
+            <div className="amount-local" aria-live="polite">
+              {t('local_equivalent', { amount: `${currencyInfo.symbol}${localAmount}`, code: currencyInfo.code })}
+            </div>
+          )}
         </div>
 
         <div className="amount-numpad-area">
@@ -64,7 +89,7 @@ const AmountScreen = () => {
       </div>
 
       <button type="button" className="amount-confirm min-tap" disabled={!isValid} onClick={handleConfirm}>
-        {`Charge $${amountStr || '0.00'}`}
+        {t('charge', { amount: `$${amountStr || '0.00'}` })}
       </button>
     </div>
   );

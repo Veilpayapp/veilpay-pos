@@ -8,6 +8,7 @@ import ProcessingScreen from './screens/ProcessingScreen';
 import SuccessScreen from './screens/SuccessScreen';
 import ErrorScreen from './screens/ErrorScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import './styles/global.css';
 
@@ -31,6 +32,8 @@ const ScreenManager = () => {
       return <ErrorScreen />;
     case 'dashboard':
       return <DashboardScreen />;
+    case 'settings':
+      return <SettingsScreen />;
     default:
       return <IdleScreen />;
   }

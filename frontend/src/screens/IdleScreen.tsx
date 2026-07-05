@@ -1,7 +1,10 @@
 import { usePOS } from '../context/POSContext';
+import { useTranslation } from '../context/LanguageContext';
+import VeilPayLogo from '../components/VeilPayLogo';
 
 const IdleScreen = () => {
   const { dispatch } = usePOS();
+  const { t } = useTranslation();
 
   const handleStart = () => {
     dispatch({ type: 'GO_TO_SCREEN', screen: 'amount' });
@@ -19,19 +22,14 @@ const IdleScreen = () => {
       className="idle min-tap"
       role="button"
       tabIndex={0}
-      aria-label="Tap to start payment"
+      aria-label={t('tap_to_start')}
       onClick={handleStart}
       onKeyDown={handleKeyDown}
       style={{ cursor: 'pointer' }}
     >
       <div className="idle-center">
-        <div className="idle-logo">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 22S4 17.18 4 9V5l8-3 8 3v4c0 8.18-8 13-8 13z" fill="var(--color-accent)" />
-          </svg>
-          <span className="idle-logo-text">VeilPay</span>
-        </div>
-        <p className="idle-subtitle">Ready to Pay</p>
+        <VeilPayLogo size={72} />
+        <p className="idle-subtitle">{t('ready_to_pay')}</p>
       </div>
     </div>
   );

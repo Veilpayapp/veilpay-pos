@@ -1,22 +1,29 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QRDisplayProps, QR_SIZE } from '../types';
 
-// QRCodeSVG requires literal color strings (it cannot resolve var() refs).
-// Colors are defined as CSS variables in global.css and read here at module
-// load time so no hex values live inside this TSX file. Fallbacks use CSS
-// named colors which are QR-spec-safe (black-on-white) if CSS hasn't loaded.
-const rootStyle = getComputedStyle(document.documentElement);
-const QR_BG_COLOR = rootStyle.getPropertyValue('--color-qr-bg').trim() || 'white';
-const QR_FG_COLOR = rootStyle.getPropertyValue('--color-qr-fg').trim() || 'black';
-
 const QRDisplay: React.FC<QRDisplayProps> = ({ value, size = QR_SIZE }) => {
-  const truncated = value ? `${value.slice(0, 8)}...${value.slice(-6)}` : '';
+  // QRCodeSVG requires literal color strings (it cannot resolve var() refs).
+  // QR is always black-on-white per spec (both themes) — read once, memoized.
+  const { bgColor, fgColor } = useMemo(() => {
+    const rootStyle = typeof document !== 'undefined'
+      ? getComputedStyle(document.documentElement)
+      : null;
+    return {
+      bgColor: rootStyle?.getPropertyValue('--color-qr-bg').trim() || '#FFFFFF',
+      fgColor: rootStyle?.getPropertyValue('--color-qr-fg').trim() || '#000000',
+    };
+  }, []);
+
+  const truncated = useMemo(
+    () => value ? `${value.slice(0, 8)}...${value.slice(-6)}` : '',
+    [value]
+  );
 
   return (
     <div className="qr-display">
       <div className="qr-display-bg">
-        <QRCodeSVG value={value} size={size} bgColor={QR_BG_COLOR} fgColor={QR_FG_COLOR} level="H" includeMargin={false} />
+        <QRCodeSVG value={value} size={size} bgColor={bgColor} fgColor={fgColor} level="H" includeMargin={false} />
       </div>
       <p className="qr-display-addr">{truncated}</p>
     </div>

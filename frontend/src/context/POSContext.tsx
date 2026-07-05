@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { POSProviderProps } from '../types';
 
 export type POSState = {
-  screen: 'idle' | 'amount' | 'payment' | 'qr' | 'processing' | 'success' | 'error' | 'dashboard';
+  screen: 'idle' | 'amount' | 'payment' | 'qr' | 'processing' | 'success' | 'error' | 'dashboard' | 'settings';
   amountUSD: number;
   invoiceId: string | null;
   paymentAddress: string | null;
@@ -12,6 +12,7 @@ export type POSState = {
   memo: string;
   selectedChain: string;
   selectedToken: string;
+  selectedCurrency: string;
 };
 
 type Action =
@@ -21,6 +22,7 @@ type Action =
   | { type: 'GO_TO_SCREEN'; screen: POSState['screen'] }
   | { type: 'SET_ERROR'; message: string }
   | { type: 'SET_SELECTION'; chainKey: string; tokenSymbol: string }
+  | { type: 'SET_CURRENCY'; currency: string }
   | { type: 'RESET' };
 
 const initialState: POSState = {
@@ -34,6 +36,7 @@ const initialState: POSState = {
   memo: '',
   selectedChain: '',
   selectedToken: '',
+  selectedCurrency: localStorage.getItem('veilpay_currency') || 'USD',
 };
 
 const posReducer = (state: POSState, action: Action): POSState => {
@@ -56,8 +59,10 @@ const posReducer = (state: POSState, action: Action): POSState => {
       return { ...state, errorMessage: action.message, screen: 'error' };
     case 'SET_SELECTION':
       return { ...state, selectedChain: action.chainKey, selectedToken: action.tokenSymbol };
+    case 'SET_CURRENCY':
+      return { ...state, selectedCurrency: action.currency };
     case 'RESET':
-      return { ...initialState, selectedChain: state.selectedChain, selectedToken: state.selectedToken };
+      return { ...initialState, selectedChain: state.selectedChain, selectedToken: state.selectedToken, selectedCurrency: state.selectedCurrency };
     default:
       return state;
   }

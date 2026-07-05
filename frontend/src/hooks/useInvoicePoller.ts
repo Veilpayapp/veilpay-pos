@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import { getInvoiceStatus } from '../services/veilpayApi';
 import { POLL_INTERVAL_MS, TIMER_INTERVAL_MS, InvoicePollerCallbacks } from '../types';
@@ -7,8 +7,7 @@ export const useInvoicePoller = (
   invoiceId: string | null,
   expiresAt: string | null,
   callbacks: InvoicePollerCallbacks
-) => {
-  const [secondsRemaining, setSecondsRemaining] = useState(0);
+): void => {
   const callbacksRef = useRef(callbacks);
 
   useEffect(() => {
@@ -16,10 +15,7 @@ export const useInvoicePoller = (
   }, [callbacks]);
 
   useEffect(() => {
-    if (!invoiceId || !expiresAt) {
-      setSecondsRemaining(0);
-      return;
-    }
+    if (!invoiceId || !expiresAt) return;
 
     let isPolling = true;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -37,22 +33,17 @@ export const useInvoicePoller = (
       if (!isPolling) return;
       const diff = dayjs(expiresAt).diff(dayjs(), 'second');
       if (diff <= 0) {
-        setSecondsRemaining(0);
         cleanup();
         callbacksRef.current.onExpired();
-      } else {
-        setSecondsRemaining(diff);
       }
     };
 
     const initialDiff = dayjs(expiresAt).diff(dayjs(), 'second');
     if (initialDiff <= 0) {
-      setSecondsRemaining(0);
       callbacksRef.current.onExpired();
       return;
     }
 
-    setSecondsRemaining(initialDiff);
     timerInterval = setInterval(updateTimer, TIMER_INTERVAL_MS);
 
     const doPoll = async () => {
@@ -77,6 +68,4 @@ export const useInvoicePoller = (
 
     return cleanup;
   }, [invoiceId, expiresAt]);
-
-  return { secondsRemaining };
 };

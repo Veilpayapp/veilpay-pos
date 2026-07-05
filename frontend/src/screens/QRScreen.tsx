@@ -1,11 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { usePOS } from '../context/POSContext';
+import { useTranslation } from '../context/LanguageContext';
 import { useInvoicePoller } from '../hooks/useInvoicePoller';
 import { InvoicePollerCallbacks } from '../types';
 import QRDisplay from '../components/QRDisplay';
 
 const QRScreen = () => {
   const { state, dispatch } = usePOS();
+  const { t } = useTranslation();
 
   const handlePaid = useCallback(() => {
     dispatch({ type: 'STATUS_UPDATE', status: 'paid' });
@@ -14,7 +16,7 @@ const QRScreen = () => {
 
   const handleExpired = useCallback(() => {
     dispatch({ type: 'STATUS_UPDATE', status: 'expired' });
-    dispatch({ type: 'SET_ERROR', message: 'Invoice expired after 15 minutes' });
+    dispatch({ type: 'SET_ERROR', message: 'qr_expired' });
   }, [dispatch]);
 
   const callbacks = useMemo<InvoicePollerCallbacks>(
@@ -39,10 +41,10 @@ const QRScreen = () => {
         <div className="qr-card">
           {state.paymentAddress && <QRDisplay value={state.paymentAddress} />}
         </div>
-        <div className="qr-scan">Waiting for scan...</div>
+        <div className="qr-scan">{t('waiting_for_scan')}</div>
       </div>
       <div className="qr-actions">
-        <button type="button" className="qr-cancel min-tap" aria-label="Cancel payment" onClick={handleCancel}>Cancel</button>
+        <button type="button" className="qr-cancel min-tap" aria-label={t('cancel_payment')} onClick={handleCancel}>{t('cancel')}</button>
       </div>
     </div>
   );

@@ -11,10 +11,6 @@ export interface QRDisplayProps {
   size?: number;
 }
 
-export interface StatusBadgeProps {
-  status: 'pending' | 'paid' | 'expired' | 'cancelled' | null;
-}
-
 export interface NumPadProps {
   value: string;
   onChange: (newValue: string) => void;
@@ -74,7 +70,6 @@ export const MAX_AMOUNT_USD = 99999;
 export const API_TIMEOUT_MS = 10000;
 export const DEFAULT_EXPIRY_MINUTES = 3;
 export const DEFAULT_MEMO = 'POS Register 1';
-export const QR_EXPIRY_URGENT_SECONDS = 60;
 export const SKELETON_PILL_COUNT = 4;
 export const QR_SIZE = 260;
 export const PROCESSING_DURATION_MS = 1500;
