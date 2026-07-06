@@ -387,11 +387,14 @@ button:focus-visible { opacity: 0.7; }
 .settings-edit-cancel { padding: 6px 16px; border-radius: 8px; background: var(--color-surfaceElevated); color: var(--color-textSecondary); font-family: var(--font-inter); font-weight: 600; font-size: 13px; }
 .settings-edit-save { padding: 6px 16px; border-radius: 8px; background: var(--color-accent); color: var(--color-textOnAccent); font-family: var(--font-inter); font-weight: 700; font-size: 13px; }
 
-.settings-lang-grid { padding: 10px 14px; background: var(--color-bgTertiary); display: flex; flex-wrap: wrap; gap: 6px; max-height: 200px; overflow-y: auto; }
+.settings-lang-picker { padding: 10px 14px; background: var(--color-bgTertiary); display: flex; flex-direction: column; gap: 8px; }
+.settings-lang-picker .settings-search { border: none; }
+.settings-lang-grid { display: flex; flex-wrap: wrap; gap: 6px; max-height: 180px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .settings-lang-pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; background: var(--color-surfaceElevated); color: var(--color-textSecondary); font-family: var(--font-inter); font-size: 12px; font-weight: 500; }
 .settings-lang-pill--active { background: var(--color-accent); color: var(--color-textOnAccent); }
 .settings-lang-flag { font-size: 16px; }
 .settings-lang-name { white-space: nowrap; }
+.settings-lang-empty { padding: 16px; text-align: center; color: var(--color-textSecondary); font-family: var(--font-inter); font-size: 13px; width: 100%; }
 
 .settings-theme-toggle { display: flex; gap: 4px; background: var(--color-surfaceElevated); border-radius: 8px; padding: 4px; }
 .settings-theme-btn { width: 36px; height: 36px; border-radius: 6px; background: transparent; color: var(--color-textSecondary); display: flex; align-items: center; justify-content: center; }

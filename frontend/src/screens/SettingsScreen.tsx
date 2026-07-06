@@ -10,6 +10,7 @@ const SettingsScreen = () => {
   const { t, lang, setLang } = useTranslation();
   const { settings, updateSetting } = useSettings();
   const [search, setSearch] = useState('');
+  const [langSearch, setLangSearch] = useState('');
   const [theme, setTheme] = useState(() => localStorage.getItem('veilpay_theme') || 'dark');
   const [editingShopName, setEditingShopName] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(false);
@@ -51,6 +52,7 @@ const SettingsScreen = () => {
     setLang(code);
     updateSetting('language', code);
     setShowLanguagePicker(false);
+    setLangSearch('');
   }, [setLang, updateSetting]);
 
   const handleSaveShopName = useCallback(() => {
@@ -70,6 +72,12 @@ const SettingsScreen = () => {
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.code.toLowerCase().includes(search.toLowerCase()) ||
     c.country.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredLanguages = LANGUAGES.filter(l =>
+    l.name.toLowerCase().includes(langSearch.toLowerCase()) ||
+    l.nativeName.toLowerCase().includes(langSearch.toLowerCase()) ||
+    l.code.toLowerCase().includes(langSearch.toLowerCase())
   );
 
   return (
@@ -237,16 +245,20 @@ const SettingsScreen = () => {
               </button>
             </div>
             {showLanguagePicker && (
-              <div className="settings-lang-grid">
-                {LANGUAGES.map(l => {
-                  const sel = lang === l.code;
-                  return (
-                    <button key={l.code} type="button" className={`settings-lang-pill ${sel ? 'settings-lang-pill--active' : ''} min-tap`} aria-pressed={sel} onClick={() => handleLanguageSelect(l.code)}>
-                      <span className="settings-lang-flag">{l.flag}</span>
-                      <span className="settings-lang-name">{l.nativeName}</span>
-                    </button>
-                  );
-                })}
+              <div className="settings-lang-picker">
+                <input type="text" className="settings-search min-tap" placeholder={t('search_language')} value={langSearch} onChange={(e) => setLangSearch(e.target.value)} aria-label={t('search_language')} />
+                <div className="settings-lang-grid">
+                  {filteredLanguages.map(l => {
+                    const sel = lang === l.code;
+                    return (
+                      <button key={l.code} type="button" className={`settings-lang-pill ${sel ? 'settings-lang-pill--active' : ''} min-tap`} aria-pressed={sel} onClick={() => handleLanguageSelect(l.code)}>
+                        <span className="settings-lang-flag">{l.flag}</span>
+                        <span className="settings-lang-name">{l.nativeName}</span>
+                      </button>
+                    );
+                  })}
+                  {filteredLanguages.length === 0 && <div className="settings-lang-empty">{t('no_languages')}</div>}
+                </div>
               </div>
             )}
           </div>

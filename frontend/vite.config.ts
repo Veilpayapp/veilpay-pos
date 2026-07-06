@@ -6,9 +6,15 @@ export default defineConfig({
   base: './',
   server: {
     port: 5173,
-    host: '0.0.0.0'
+    host: '0.0.0.0',
+    // allowedHosts: ['.loca.lt']
   },
   build: {
     outDir: 'dist'
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
   }
 });

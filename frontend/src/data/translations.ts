@@ -13,7 +13,7 @@ export type TranslationKey =
   | 'merchant_display' | 'shop_name' | 'shop_name_ph' | 'receipt_footer' | 'receipt_footer_ph'
   | 'payment_section' | 'payment_timeout' | 'confirmation_sound' | 'beep_on_success'
   | 'region' | 'local_currency' | 'language' | 'currency_selection'
-  | 'search_currency' | 'no_currencies' | 'save' | 'back_to_dashboard'
+  | 'search_currency' | 'no_currencies' | 'search_language' | 'no_languages' | 'save' | 'back_to_dashboard'
   | 'healthy' | 'mid' | 'poor' | 'offline'
   | 'usdt_rate' | 'local_equivalent' | 'rate_loading' | 'rate_unavailable'
   | 'dark' | 'light';
@@ -77,6 +77,8 @@ const en: TranslationDict = {
   currency_selection: 'Currency Selection',
   search_currency: 'Search currency or country...',
   no_currencies: 'No currencies found',
+  search_language: 'Search language...',
+  no_languages: 'No languages found',
   save: 'Save',
   back_to_dashboard: 'Back to dashboard',
   healthy: 'Healthy',
@@ -148,6 +150,8 @@ const fr: TranslationDict = {
   currency_selection: 'Sélection de la devise',
   search_currency: 'Rechercher une devise ou un pays...',
   no_currencies: 'Aucune devise trouvée',
+  search_language: 'Rechercher une langue...',
+  no_languages: 'Aucune langue trouvée',
   save: 'Enregistrer',
   back_to_dashboard: 'Retour au tableau de bord',
   healthy: 'Bon',
@@ -219,6 +223,8 @@ const es: TranslationDict = {
   currency_selection: 'Selección de moneda',
   search_currency: 'Buscar moneda o país...',
   no_currencies: 'No se encontraron monedas',
+  search_language: 'Buscar idioma...',
+  no_languages: 'No se encontraron idiomas',
   save: 'Guardar',
   back_to_dashboard: 'Volver al panel',
   healthy: 'Bueno',
@@ -290,6 +296,8 @@ const de: TranslationDict = {
   currency_selection: 'Währungsauswahl',
   search_currency: 'Währung oder Land suchen...',
   no_currencies: 'Keine Währungen gefunden',
+  search_language: 'Sprache suchen...',
+  no_languages: 'Keine Sprachen gefunden',
   save: 'Speichern',
   back_to_dashboard: 'Zurück zum Dashboard',
   healthy: 'Gut',
@@ -361,6 +369,8 @@ const pt: TranslationDict = {
   currency_selection: 'Seleção de moeda',
   search_currency: 'Buscar moeda ou país...',
   no_currencies: 'Nenhuma moeda encontrada',
+  search_language: 'Buscar idioma...',
+  no_languages: 'Nenhum idioma encontrado',
   save: 'Salvar',
   back_to_dashboard: 'Voltar ao painel',
   healthy: 'Bom',
@@ -432,6 +442,8 @@ const ar: TranslationDict = {
   currency_selection: 'اختيار العملة',
   search_currency: 'ابحث عن عملة أو دولة...',
   no_currencies: 'لم يتم العثور على عملات',
+  search_language: 'ابحث عن لغة...',
+  no_languages: 'لم يتم العثور على لغات',
   save: 'حفظ',
   back_to_dashboard: 'العودة إلى لوحة التحكم',
   healthy: 'ممتاز',
@@ -503,6 +515,8 @@ const hi: TranslationDict = {
   currency_selection: 'मुद्रा चयन',
   search_currency: 'मुद्रा या देश खोजें...',
   no_currencies: 'कोई मुद्रा नहीं मिली',
+  search_language: 'भाषा खोजें...',
+  no_languages: 'कोई भाषा नहीं मिली',
   save: 'सहेजें',
   back_to_dashboard: 'डैशबोर्ड पर वापस',
   healthy: 'अच्छा',
@@ -574,6 +588,8 @@ const zh: TranslationDict = {
   currency_selection: '货币选择',
   search_currency: '搜索货币或国家...',
   no_currencies: '未找到货币',
+  search_language: '搜索语言...',
+  no_languages: '未找到语言',
   save: '保存',
   back_to_dashboard: '返回仪表板',
   healthy: '良好',
@@ -645,6 +661,8 @@ const ru: TranslationDict = {
   currency_selection: 'Выбор валюты',
   search_currency: 'Поиск валюты или страны...',
   no_currencies: 'Валюты не найдены',
+  search_language: 'Поиск языка...',
+  no_languages: 'Языки не найдены',
   save: 'Сохранить',
   back_to_dashboard: 'Назад на панель',
   healthy: 'Отлично',
@@ -716,6 +734,8 @@ const ja: TranslationDict = {
   currency_selection: '通貨選択',
   search_currency: '通貨または国を検索...',
   no_currencies: '通貨が見つかりません',
+  search_language: '言語を検索...',
+  no_languages: '言語が見つかりません',
   save: '保存',
   back_to_dashboard: 'ダッシュボードに戻る',
   healthy: '良好',
